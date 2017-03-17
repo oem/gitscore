@@ -15,16 +15,17 @@ func main() {
 	flag.Parse()
 
 	repos, err := github.GetRepos(*token)
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
+	handle(err)
 
 	stats, err := github.GetStats(repos, *token)
+	handle(err)
 
+	fmt.Printf("%v\n", stats)
+}
+
+func handle(err error) {
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
-	fmt.Printf("%v\n", stats)
 }
