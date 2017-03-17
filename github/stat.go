@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -17,19 +15,22 @@ type contributor struct {
 	} `json:"author"`
 }
 
-func GetStats(repos []string, token string) (map[string]int, error) {
+func GetStats(repos []string, token string) (pairlist, error) {
 	var contributors []contributor
 	for _, repo := range repos {
 		url := fmt.Sprintf("https://api.github.com/repos/njiuko/%s/stats/contributors", repo)
 		projContributors, err := getStat(token, url)
 		if err != nil {
-			log.Println(err)
-			os.Exit(1)
+			return nil, err
 		}
 		contributors = append(contributors, projContributors...)
 	}
 
-	return sumStats(contributors)
+	stats, err := sumStats(contributors)
+	if err != nil {
+		return nil, err
+	}
+	return sortStats(stats), nil
 }
 
 func getStat(token string, url string) ([]contributor, error) {
@@ -56,10 +57,6 @@ func getStat(token string, url string) ([]contributor, error) {
 	}
 
 	err = json.Unmarshal(body, &contributors)
-	if err != nil {
-		return contributors, err
-	}
-
 	return contributors, err
 }
 
