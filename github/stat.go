@@ -17,15 +17,6 @@ type contributor struct {
 	} `json:"author"`
 }
 
-func SumStats(contributors []contributor) (map[string]int, error) {
-	stats := map[string]int{}
-	for _, contributor := range contributors {
-		stats[contributor.Author.Name] += contributor.Total
-	}
-
-	return stats, nil
-}
-
 func GetStats(repos []string, token string) (map[string]int, error) {
 	var contributors []contributor
 	for _, repo := range repos {
@@ -38,7 +29,7 @@ func GetStats(repos []string, token string) (map[string]int, error) {
 		contributors = append(contributors, projContributors...)
 	}
 
-	return SumStats(contributors)
+	return sumStats(contributors)
 }
 
 func getStat(token string, url string) ([]contributor, error) {
@@ -70,4 +61,13 @@ func getStat(token string, url string) ([]contributor, error) {
 	}
 
 	return contributors, err
+}
+
+func sumStats(contributors []contributor) (map[string]int, error) {
+	stats := map[string]int{}
+	for _, contributor := range contributors {
+		stats[contributor.Author.Name] += contributor.Total
+	}
+
+	return stats, nil
 }
