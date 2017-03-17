@@ -2,20 +2,47 @@ package github
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
-type Contributor struct {
+type contributor struct {
 	Total  int `json:"total"`
 	Author struct {
 		Name string `json:"login"`
 	} `json:"author"`
 }
 
-func GetStat(token string, url string) ([]Contributor, error) {
-	var contributors []Contributor
+func SumStats(contributors []contributor) (map[string]int, error) {
+	stats := map[string]int{}
+	for _, contributor := range contributors {
+		stats[contributor.Author.Name] += contributor.Total
+	}
+
+	return stats, nil
+}
+
+func GetStats(repos []string, token string) (map[string]int, error) {
+	var contributors []contributor
+	for _, repo := range repos {
+		url := fmt.Sprintf("https://api.github.com/repos/njiuko/%s/stats/contributors", repo)
+		projContributors, err := getStat(token, url)
+		if err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+		contributors = append(contributors, projContributors...)
+	}
+
+	return SumStats(contributors)
+}
+
+func getStat(token string, url string) ([]contributor, error) {
+	var contributors []contributor
 
 	timeout := time.Duration(8 * time.Second)
 	client := http.Client{
@@ -43,13 +70,4 @@ func GetStat(token string, url string) ([]Contributor, error) {
 	}
 
 	return contributors, err
-}
-
-func SumStats(contributors []Contributor) (map[string]int, error) {
-	stats := map[string]int{}
-	for _, contributor := range contributors {
-		stats[contributor.Author.Name] += contributor.Total
-	}
-
-	return stats, nil
 }
