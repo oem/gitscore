@@ -12,9 +12,11 @@ type repo struct {
 	Name string `json:"name"`
 }
 
-func GetRepos(token string) ([]string, error) {
+func GetRepos(orga string, token string) ([]string, error) {
 	var names []string
-	url := "https://api.github.com/orgs/njiuko/repos?type=sources"
+	url := fmt.Sprintf("https://api.github.com/orgs/%s/repos?type=sources", orga)
+
+	// TODO this will not scale ofc, once we have more than 90 repos (30 repos per page)
 	for i := 1; i <= 3; i++ {
 		repos, err := paginatedRepos(token, fmt.Sprintf("%s&page=%d", url, i))
 		if err != nil {
