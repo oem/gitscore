@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 )
@@ -57,6 +58,7 @@ func getStat(token string, url string) ([]contributor, error) {
 	}
 
 	err = json.Unmarshal(body, &contributors)
+	log.Printf("%s: %v", url, contributors)
 	return contributors, err
 }
 
