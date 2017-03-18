@@ -10,14 +10,15 @@ import (
 )
 
 var token = flag.String("token", "", "github token")
+var orga = flag.String("orga", "", "github organisation")
 
 func main() {
 	flag.Parse()
 
-	repos, err := github.GetRepos(*token)
+	repos, err := github.GetRepos(*orga, *token)
 	handle(err)
 
-	stats, err := github.GetStats(repos, *token)
+	stats, err := github.GetStats(*orga, repos, *token)
 	handle(err)
 
 	fmt.Printf("%v\n", stats)
