@@ -16,10 +16,10 @@ type contributor struct {
 	} `json:"author"`
 }
 
-func GetStats(repos []string, token string) (pairlist, error) {
+func GetStats(orga string, repos []string, token string) (pairlist, error) {
 	var contributors []contributor
 	for _, repo := range repos {
-		url := fmt.Sprintf("https://api.github.com/repos/njiuko/%s/stats/contributors", repo)
+		url := fmt.Sprintf("https://api.github.com/repos/%s/%s/stats/contributors", orga, repo)
 		projContributors, err := getStat(token, url)
 		if err != nil {
 			return nil, err
