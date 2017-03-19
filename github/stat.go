@@ -16,22 +16,35 @@ type contributor struct {
 	} `json:"author"`
 }
 
-func GetStats(orga string, repos []string, token string) (pairlist, error) {
+type result struct {
+	contributors []contributor
+	err          error
+}
+
+func GetStats(orga string, repos []string, token string) pairlist {
+	c := make(chan result, len(repos))
+
 	var contributors []contributor
+
 	for _, repo := range repos {
 		url := fmt.Sprintf("https://api.github.com/repos/%s/%s/stats/contributors", orga, repo)
-		projContributors, err := getStat(token, url)
-		if err != nil {
-			return nil, err
-		}
-		contributors = append(contributors, projContributors...)
+		go func() {
+			proj, err := getStat(token, url)
+			c <- result{contributors: proj, err: err}
+		}()
 	}
 
-	stats, err := sumStats(contributors)
-	if err != nil {
-		return nil, err
+	for i := 0; i < len(repos); i++ {
+		result := <-c
+		if result.err != nil {
+			log.Printf("%v\n", result.err)
+			continue
+		}
+		contributors = append(contributors, result.contributors...)
 	}
-	return sortStats(stats), nil
+
+	stats := sumStats(contributors)
+	return sortStats(stats)
 }
 
 func getStat(token string, url string) ([]contributor, error) {
@@ -62,11 +75,11 @@ func getStat(token string, url string) ([]contributor, error) {
 	return contributors, err
 }
 
-func sumStats(contributors []contributor) (map[string]int, error) {
+func sumStats(contributors []contributor) map[string]int {
 	stats := map[string]int{}
 	for _, contributor := range contributors {
 		stats[contributor.Author.Name] += contributor.Total
 	}
 
-	return stats, nil
+	return stats
 }
