@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type contributor struct {
+type author struct {
 	Total  int `json:"total"`
 	Author struct {
 		Name string `json:"login"`
@@ -17,23 +17,23 @@ type contributor struct {
 }
 
 type result struct {
-	contributors []contributor
-	err          error
+	authors []author
+	err     error
 }
 
 // GetStats is getting the list of contributors for all the organisations repos in parallel
-// returns map[String]int, key is the contributors name, value the sum of commits
+// returns a sorted list of contributors <github.Contributors>
 // Errors will only be logged but otherwise ignored
-func GetStats(orga string, repos []string, token string) pairlist {
+func GetStats(orga string, repos []string, token string) Contributors {
 	c := make(chan result, len(repos))
 
-	var contributors []contributor
+	var authors []author
 
 	for _, repo := range repos {
 		url := fmt.Sprintf("https://api.github.com/repos/%s/%s/stats/contributors", orga, repo)
 		go func() {
 			proj, err := getStat(token, url)
-			c <- result{contributors: proj, err: err}
+			c <- result{authors: proj, err: err}
 		}()
 	}
 
@@ -43,15 +43,15 @@ func GetStats(orga string, repos []string, token string) pairlist {
 			log.Printf("%v\n", result.err)
 			continue
 		}
-		contributors = append(contributors, result.contributors...)
+		authors = append(authors, result.authors...)
 	}
 
-	stats := sumStats(contributors)
+	stats := sumStats(authors)
 	return sortStats(stats)
 }
 
-func getStat(token string, url string) ([]contributor, error) {
-	var contributors []contributor
+func getStat(token string, url string) ([]author, error) {
+	var authors []author
 
 	timeout := time.Duration(8 * time.Second)
 	client := http.Client{
@@ -61,27 +61,27 @@ func getStat(token string, url string) ([]contributor, error) {
 	req.SetBasicAuth("oem", token)
 	resp, err := client.Do(req)
 	if err != nil {
-		return contributors, err
+		return authors, err
 	}
 
 	if resp.StatusCode == 204 {
-		return contributors, err
+		return authors, err
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return contributors, err
+		return authors, err
 	}
 
-	err = json.Unmarshal(body, &contributors)
-	log.Printf("%s: %v", url, contributors)
-	return contributors, err
+	err = json.Unmarshal(body, &authors)
+	log.Printf("%s: %v", url, authors)
+	return authors, err
 }
 
-func sumStats(contributors []contributor) map[string]int {
+func sumStats(authors []author) map[string]int {
 	stats := map[string]int{}
-	for _, contributor := range contributors {
-		stats[contributor.Author.Name] += contributor.Total
+	for _, author := range authors {
+		stats[author.Author.Name] += author.Total
 	}
 
 	return stats
