@@ -74,7 +74,6 @@ func getStat(token string, url string) ([]author, error) {
 	}
 
 	err = json.Unmarshal(body, &authors)
-	log.Printf("%s: %v", url, authors)
 	return authors, err
 }
 
