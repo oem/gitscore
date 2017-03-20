@@ -23,5 +23,7 @@ func main() {
 
 	stats := github.GetStats(*orga, repos, *token)
 
-	fmt.Printf("%v\n", stats)
+	for rank, contributor := range stats {
+		fmt.Printf("%3d. %s: %d\n", rank+1, contributor.Key, contributor.Value)
+	}
 }

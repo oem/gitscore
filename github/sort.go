@@ -3,15 +3,15 @@ package github
 import "sort"
 
 type pair struct {
-	key   string
-	value int
+	Key   string
+	Value int
 }
 
 type pairlist []pair
 
 func (p pairlist) Len() int           { return len(p) }
 func (p pairlist) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-func (p pairlist) Less(i, j int) bool { return p[i].value < p[j].value }
+func (p pairlist) Less(i, j int) bool { return p[i].Value < p[j].Value }
 
 func sortStats(stats map[string]int) pairlist {
 	p := make(pairlist, len(stats))
