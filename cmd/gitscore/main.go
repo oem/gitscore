@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/oem/highscore/github"
+	"github.com/oem/gitscore/github"
 )
 
 var token = flag.String("token", "", "github token")
