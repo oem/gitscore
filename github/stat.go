@@ -21,6 +21,9 @@ type result struct {
 	err          error
 }
 
+// GetStats is getting the list of contributors for all the organisations repos in parallel
+// returns map[String]int, key is the contributors name, value the sum of commits
+// Errors will only be logged but otherwise ignored
 func GetStats(orga string, repos []string, token string) pairlist {
 	c := make(chan result, len(repos))
 
