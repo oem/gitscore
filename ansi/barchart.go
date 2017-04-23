@@ -1,14 +1,22 @@
 package ansi
 
-import ui "github.com/gizak/termui"
+import (
+	ui "github.com/gizak/termui"
+	"github.com/oem/gitscore/github"
+)
 
-func Draw() error {
+func Draw(contributors github.Contributors) error {
 	if err := ui.Init(); err != nil {
 		return err
 	}
 	defer ui.Close()
-	bc := createBarChart()
-	ui.Render(bc)
+
+	bc := createBarChart(contributors)
+	ui.Body.AddRows(ui.NewRow(ui.NewCol(12, 0, bc)))
+	// calculate layout
+	ui.Body.Align()
+	ui.Render(ui.Body)
+
 	ui.Handle("/sys/kbd/q", func(ui.Event) {
 		ui.StopLoop()
 	})
@@ -16,10 +24,28 @@ func Draw() error {
 	return nil
 }
 
-func createBarChart() *ui.BarChart {
+func createBarChart(contributors github.Contributors) *ui.BarChart {
 	bc := ui.NewBarChart()
-	bc.Width = 50
-	bc.Height = 30
-	bc.BorderLabel = "score(total)"
+	labels, data := labelsAndData(contributors)
+	bc.Data = data
+	bc.DataLabels = labels
+	bc.BarColor = ui.ColorRed
+	bc.TextColor = ui.ColorWhite
+	bc.BorderLabelFg = ui.ColorWhite
+	bc.NumColor = ui.ColorWhite
+	bc.BarWidth = 7
+	bc.BarGap = 2
+	bc.Height = 20
+	bc.BorderLabel = "ALL TIME contributions"
 	return bc
+}
+
+func labelsAndData(contributors github.Contributors) ([]string, []int) {
+	labels := []string{}
+	contribs := []int{}
+	for _, contributor := range contributors {
+		labels = append(labels, contributor.Name)
+		contribs = append(contribs, contributor.Commits)
+	}
+	return labels, contribs
 }
