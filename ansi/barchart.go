@@ -5,6 +5,7 @@ import (
 	"github.com/oem/gitscore/github"
 )
 
+// Draw deals with "drawing" the whole dashboard. Details about widgets used and layout are internal only.
 func Draw(contributors github.Contributors) error {
 	if err := ui.Init(); err != nil {
 		return err
