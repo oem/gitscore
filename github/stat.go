@@ -21,7 +21,7 @@ type result struct {
 	err     error
 }
 
-// GetStats is getting the list of contributors for all the organisations repos in parallel
+// GetStats is getting the list of contributors for all the repos of the organisation in parallel
 // returns a sorted list of contributors <github.Contributors>
 // Errors will only be logged but otherwise ignored
 func GetStats(orga string, repos []string, token string) Contributors {
@@ -32,8 +32,14 @@ func GetStats(orga string, repos []string, token string) Contributors {
 	for _, repo := range repos {
 		url := fmt.Sprintf("https://api.github.com/repos/%s/%s/stats/contributors", orga, repo)
 		go func() {
-			proj, err := getStat(token, url)
-			c <- result{authors: proj, err: err}
+			for {
+				proj, err := getStat(token, url)
+				if err == nil {
+					c <- result{authors: proj, err: err}
+					break
+				}
+				fmt.Printf("requeuing %s\n", url)
+			}
 		}()
 	}
 
