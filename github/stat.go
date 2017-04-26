@@ -16,16 +16,11 @@ type author struct {
 	} `json:"author"`
 }
 
-type result struct {
-	authors []author
-	err     error
-}
-
 // GetStats is getting the list of contributors for all the repos of the organisation in parallel
 // returns a sorted list of contributors <github.Contributors>
 // Errors will only be logged but otherwise ignored
 func GetStats(orga string, repos []string, token string) Contributors {
-	c := make(chan result, len(repos))
+	c := make(chan []author, len(repos))
 
 	var authors []author
 
@@ -35,21 +30,18 @@ func GetStats(orga string, repos []string, token string) Contributors {
 			for {
 				proj, err := getStat(token, url)
 				if err == nil {
-					c <- result{authors: proj, err: err}
+					c <- proj
 					break
 				}
-				fmt.Printf("requeuing %s\n", url)
+				log.Println(err)
+				log.Printf("requeuing %s\n", url)
 			}
 		}()
 	}
 
 	for i := 0; i < len(repos); i++ {
-		result := <-c
-		if result.err != nil {
-			log.Printf("%v\n", result.err)
-			continue
-		}
-		authors = append(authors, result.authors...)
+		proj := <-c
+		authors = append(authors, proj...)
 	}
 
 	stats := sumStats(authors)
