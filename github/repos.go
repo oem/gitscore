@@ -12,6 +12,7 @@ type repo struct {
 	Name string `json:"name"`
 }
 
+// GetRepos gets all the repos for an organisation via the github api
 func GetRepos(orga string, token string) ([]string, error) {
 	var names []string
 	url := fmt.Sprintf("https://api.github.com/orgs/%s/repos?type=sources", orga)
