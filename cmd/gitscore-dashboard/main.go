@@ -14,7 +14,7 @@ var orga = flag.String("orga", "", "github organisation")
 func main() {
 	flag.Parse()
 
-	repos, err := github.GetRepos(*orga, *token)
+	repos, err := github.Repos(*orga, *token)
 	if err != nil {
 		log.Fatal(err)
 	}

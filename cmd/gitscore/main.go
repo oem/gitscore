@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/oem/gitscore/github"
 )
@@ -15,10 +14,9 @@ var orga = flag.String("orga", "", "github organisation")
 func main() {
 	flag.Parse()
 
-	repos, err := github.GetRepos(*orga, *token)
+	repos, err := github.Repos(*orga, *token)
 	if err != nil {
-		log.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	stats := github.GetStats(*orga, repos, *token)
