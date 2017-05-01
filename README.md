@@ -4,6 +4,10 @@ Gitscore aggregates all contributions to a github organisations repositories.
 
 It then displays it in a barchart or a list.
 
+![golang organisation example](/example-golang.png)
+
+golang organisation example
+
 ## setup
 
 `go get github.com/oem/gitscore`
