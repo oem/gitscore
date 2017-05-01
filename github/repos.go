@@ -9,7 +9,7 @@ import (
 )
 
 type client interface {
-	getPaginatedRepos(string) ([]string, error)
+	get(string) ([]byte, error)
 }
 
 type apiClient struct{}
@@ -31,17 +31,21 @@ func getRepos(client client, orga string, token string) ([]string, error) {
 
 	// TODO this will not scale ofc, once we have more than 90 repos (30 repos per page)
 	for i := 1; i <= 3; i++ {
-		repos, err := client.getPaginatedRepos(fmt.Sprintf("%s&page=%d", url, i))
+		repos, err := client.get(fmt.Sprintf("%s&page=%d", url, i))
 		if err != nil {
-			return names, err
+			return nil, err
 		}
-		names = append(names, repos...)
+
+		repoNames, err := extractNames(repos)
+		if err != nil {
+			return nil, err
+		}
+		names = append(names, repoNames...)
 	}
 	return names, nil
 }
 
-func (api apiClient) getPaginatedRepos(url string) ([]string, error) {
-	var repoNames []string
+func (api apiClient) get(url string) ([]byte, error) {
 	var err error
 
 	timeout := time.Duration(4 * time.Second)
@@ -51,16 +55,11 @@ func (api apiClient) getPaginatedRepos(url string) ([]string, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	resp, err := client.Do(req)
 	if err != nil {
-		return repoNames, err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return repoNames, err
-	}
-
-	return extractNames(body)
+	return ioutil.ReadAll(resp.Body)
 }
 
 func extractNames(body []byte) ([]string, error) {
