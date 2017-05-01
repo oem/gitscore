@@ -9,7 +9,7 @@ import (
 )
 
 type client interface {
-	getPaginatedRepos(string, string) ([]string, error)
+	getPaginatedRepos(string) ([]string, error)
 }
 
 type apiClient struct{}
@@ -27,11 +27,11 @@ func Repos(orga string, token string) ([]string, error) {
 
 func getRepos(client client, orga string, token string) ([]string, error) {
 	var names []string
-	url := fmt.Sprintf("https://api.github.com/orgs/%s/repos?type=sources", orga)
+	url := fmt.Sprintf("https://api.github.com/orgs/%s/repos?type=sources&access_token=%s", orga, token)
 
 	// TODO this will not scale ofc, once we have more than 90 repos (30 repos per page)
 	for i := 1; i <= 3; i++ {
-		repos, err := client.getPaginatedRepos(token, fmt.Sprintf("%s&page=%d", url, i))
+		repos, err := client.getPaginatedRepos(fmt.Sprintf("%s&page=%d", url, i))
 		if err != nil {
 			return names, err
 		}
@@ -40,7 +40,7 @@ func getRepos(client client, orga string, token string) ([]string, error) {
 	return names, nil
 }
 
-func (api apiClient) getPaginatedRepos(token string, url string) ([]string, error) {
+func (api apiClient) getPaginatedRepos(url string) ([]string, error) {
 	var repoNames []string
 	var err error
 
@@ -49,7 +49,6 @@ func (api apiClient) getPaginatedRepos(token string, url string) ([]string, erro
 		Timeout: timeout,
 	}
 	req, err := http.NewRequest("GET", url, nil)
-	req.SetBasicAuth("oem", token)
 	resp, err := client.Do(req)
 	if err != nil {
 		return repoNames, err
