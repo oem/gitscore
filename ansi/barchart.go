@@ -36,7 +36,7 @@ func createBarChart(contributors github.Contributors) *ui.BarChart {
 	bc.NumColor = ui.ColorWhite
 	bc.BarWidth = 7
 	bc.BarGap = 2
-	bc.Height = 40
+	bc.Height = ui.TermHeight()
 	bc.BorderLabel = "ALL TIME contributions"
 	return bc
 }
