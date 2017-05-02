@@ -10,6 +10,11 @@ import (
 
 var token = flag.String("token", "", "github token")
 var orga = flag.String("orga", "", "github organisation")
+var verbose = flag.Bool("verbose", false, "verbose logging")
+
+func init() {
+	flag.BoolVar(verbose, "v", false, "verbose logging")
+}
 
 func main() {
 	flag.Parse()
@@ -18,7 +23,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	stats := github.GetStats(*orga, repos, *token)
+	stats := github.GetStats(*orga, repos, *token, *verbose)
 
 	err = ansi.Draw(stats)
 	if err != nil {

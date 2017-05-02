@@ -10,6 +10,11 @@ import (
 
 var token = flag.String("token", "", "github token")
 var orga = flag.String("orga", "", "github organisation")
+var verbose = flag.Bool("verbose", false, "verbose logging")
+
+func init() {
+	flag.BoolVar(verbose, "v", false, "verbose logging")
+}
 
 func main() {
 	flag.Parse()
@@ -19,7 +24,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	stats := github.GetStats(*orga, repos, *token)
+	stats := github.GetStats(*orga, repos, *token, *verbose)
 
 	for rank, contributor := range stats {
 		fmt.Printf("%3d. %s: %d\n", rank+1, contributor.Name, contributor.Commits)

@@ -19,7 +19,7 @@ type author struct {
 // GetStats is getting the list of contributors for all the repos of the organisation in parallel
 // returns a sorted list of contributors <github.Contributors>
 // Errors will only be logged but otherwise ignored
-func GetStats(orga string, repos []string, token string) Contributors {
+func GetStats(orga string, repos []string, token string, verbose bool) Contributors {
 	c := make(chan []author, len(repos))
 
 	var authors []author
@@ -33,8 +33,10 @@ func GetStats(orga string, repos []string, token string) Contributors {
 					c <- proj
 					break
 				}
-				log.Println(err)
-				log.Printf("requeuing %s\n", url)
+				if verbose {
+					log.Println(err)
+					log.Printf("requeuing %s\n", url)
+				}
 			}
 		}()
 	}
