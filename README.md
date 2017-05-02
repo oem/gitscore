@@ -10,7 +10,7 @@ Example barchart for the golang organisation(on github):
 
 ## setup
 
-`go get github.com/oem/gitscore`
+`go get -v github.com/oem/gitscore/...`
 
 ## usage
 
