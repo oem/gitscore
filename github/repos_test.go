@@ -8,10 +8,11 @@ import (
 type fakeClient struct {
 	Response []byte
 	Err      error
+	Next     string
 }
 
-func (f fakeClient) get(url string) ([]byte, error) {
-	return f.Response, f.Err
+func (f fakeClient) getPage(url string) ([]byte, string, error) {
+	return f.Response, f.Next, f.Err
 }
 
 var successResponse = []byte(`[{"name": "gitscore"}, {"name": "lnch"}]`)

@@ -9,7 +9,7 @@ import (
 )
 
 type client interface {
-	get(string) ([]byte, error)
+	getPage(string) ([]byte, string, error)
 }
 
 type apiClient struct{}
@@ -31,7 +31,7 @@ func getRepos(client client, orga string, token string) ([]string, error) {
 
 	// TODO this will not scale ofc, once we have more than 90 repos (30 repos per page)
 	for i := 1; i <= 3; i++ {
-		repos, err := client.get(fmt.Sprintf("%s&page=%d", url, i))
+		repos, _, err := client.getPage(fmt.Sprintf("%s&page=%d", url, i))
 		if err != nil {
 			return nil, err
 		}
@@ -45,8 +45,9 @@ func getRepos(client client, orga string, token string) ([]string, error) {
 	return names, nil
 }
 
-func (api apiClient) get(url string) ([]byte, error) {
+func (api apiClient) getPage(url string) ([]byte, string, error) {
 	var err error
+	var next string
 
 	timeout := time.Duration(4 * time.Second)
 	client := http.Client{
@@ -55,11 +56,12 @@ func (api apiClient) get(url string) ([]byte, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	defer resp.Body.Close()
 
-	return ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+	return body, next, err
 }
 
 func extractNames(body []byte) ([]string, error) {
