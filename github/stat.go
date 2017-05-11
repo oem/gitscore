@@ -16,8 +16,8 @@ type author struct {
 	} `json:"author"`
 }
 
-// GetStats is getting the list of contributors for all the repos of the organisation in parallel
-// returns a sorted list of contributors <github.Contributors>
+// GetStats is getting the list of contributors for all the repos of the organisation in parallel.
+// Returns a sorted list of contributors <github.Contributors>.
 // Errors will only be logged but otherwise ignored
 func GetStats(orga string, repos []string, token string, verbose bool) Contributors {
 	c := make(chan []author, len(repos))
