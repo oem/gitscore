@@ -67,7 +67,7 @@ func TestGetRepos(t *testing.T) {
 func TestGetReposPaginated(t *testing.T) {
 	responses := []fakeResponse{
 		fakeResponse{Response: successResponse, Err: nil, Next: "moo"},
-		fakeResponse{Response: successResponse, Err: nil, Next: ""},
+		fakeResponse{Response: []byte(`[{"name": "diggi"}]`), Err: nil, Next: ""},
 	}
 	responseProvider := &responseProvider{responses: responses}
 
@@ -75,7 +75,7 @@ func TestGetReposPaginated(t *testing.T) {
 		responseProvider: responseProvider,
 	}
 
-	expected := []string{"gitscore", "lnch", "gitscore", "lnch"}
+	expected := []string{"gitscore", "lnch", "diggi"}
 	actual, err := getRepos(client, "orga", "token")
 	if err != nil {
 		t.Errorf("expected repository names, got an error: %q", err)
