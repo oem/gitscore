@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"time"
 )
 
@@ -27,11 +28,12 @@ func Repos(orga string, token string) ([]string, error) {
 
 func getRepos(client client, orga string, token string) ([]string, error) {
 	var names []string
-	url := fmt.Sprintf("https://api.github.com/orgs/%s/repos?type=sources&access_token=%s", orga, token)
+	var repos []byte
+	var err error
+	next := fmt.Sprintf("https://api.github.com/orgs/%s/repos?type=sources&access_token=%s", orga, token)
 
-	// TODO this will not scale ofc, once we have more than 90 repos (30 repos per page)
-	for i := 1; i <= 3; i++ {
-		repos, _, err := client.getPage(fmt.Sprintf("%s&page=%d", url, i))
+	for {
+		repos, next, err = client.getPage(next)
 		if err != nil {
 			return nil, err
 		}
@@ -41,6 +43,10 @@ func getRepos(client client, orga string, token string) ([]string, error) {
 			return nil, err
 		}
 		names = append(names, repoNames...)
+
+		if len(next) == 0 {
+			break
+		}
 	}
 	return names, nil
 }
@@ -49,7 +55,7 @@ func (api apiClient) getPage(url string) ([]byte, string, error) {
 	var err error
 	var next string
 
-	timeout := time.Duration(4 * time.Second)
+	timeout := time.Duration(6 * time.Second)
 	client := http.Client{
 		Timeout: timeout,
 	}
@@ -60,6 +66,11 @@ func (api apiClient) getPage(url string) ([]byte, string, error) {
 	}
 	defer resp.Body.Close()
 
+	link := resp.Header.Get("Link")
+	next, err = extractNext(link)
+	if err != nil {
+		return nil, "", err
+	}
 	body, err := ioutil.ReadAll(resp.Body)
 	return body, next, err
 }
@@ -77,4 +88,16 @@ func extractNames(body []byte) ([]string, error) {
 		names = append(names, repo.Name)
 	}
 	return names, err
+}
+
+func extractNext(link string) (string, error) {
+	rp, err := regexp.Compile("<(http.+?)>; rel=\"next\"")
+	if err != nil {
+		return "", err
+	}
+	nextLink := rp.FindSubmatch([]byte(link))
+	if len(nextLink) <= 0 {
+		return "", nil
+	}
+	return string(nextLink[1]), nil
 }
