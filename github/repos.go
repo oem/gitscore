@@ -55,11 +55,14 @@ func (api apiClient) getPage(url string) ([]byte, string, error) {
 	var err error
 	var next string
 
-	timeout := time.Duration(6 * time.Second)
+	timeout := time.Duration(12 * time.Second)
 	client := http.Client{
 		Timeout: timeout,
 	}
 	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, "", err
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, "", err
