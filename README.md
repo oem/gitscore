@@ -12,6 +12,10 @@ Example barchart for the golang organisation(on github):
 
 `go get -v github.com/oem/gitscore/...`
 
+`go install github.com/oem/gitscore//cmd/gitscore`
+
+`go install github.com/oem/gitscore//cmd/gitscore-dashboard`
+
 ## usage
 
 There is two binaries you can use: gitscore and gitscore-dashboard.
