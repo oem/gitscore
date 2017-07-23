@@ -58,6 +58,9 @@ func getStat(token string, url string) ([]author, error) {
 		Timeout: timeout,
 	}
 	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return authors, err
+	}
 	req.SetBasicAuth("oem", token)
 	resp, err := client.Do(req)
 	if err != nil {
