@@ -12,9 +12,9 @@ Example barchart for the golang organisation(on github):
 
 `go get -v github.com/oem/gitscore/...`
 
-`go install github.com/oem/gitscore/cmd/gitscore`
+`go install github.com/oem/gitscore/cmds/gitscore`
 
-`go install github.com/oem/gitscore/cmd/gitscore-dashboard`
+`go install github.com/oem/gitscore/cmds/gitscore-dashboard`
 
 ## usage
 
