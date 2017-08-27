@@ -8,15 +8,13 @@ import (
 	"github.com/oem/gitscore/github"
 )
 
-var token = flag.String("token", "", "github token")
-var orga = flag.String("orga", "", "github organisation")
-var verbose = flag.Bool("verbose", false, "verbose logging")
-
-func init() {
-	flag.BoolVar(verbose, "v", false, "verbose logging")
-}
-
 func main() {
+	var (
+		token   = flag.String("token", "", "github token")
+		orga    = flag.String("orga", "", "github organisation")
+		verbose = flag.Bool("verbose", false, "verbose logging")
+	)
+	flag.BoolVar(verbose, "v", false, "verbose logging")
 	flag.Parse()
 
 	repos, err := github.Repos(*orga, *token)
