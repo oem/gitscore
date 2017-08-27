@@ -1,7 +1,7 @@
 build: list dashboard
 
 docker: clean build
-	docker build -t gitscore .
+	docker build -t oembot/gitscore .
 
 list:
 	CGO_ENABLED=0 GOOS=linux go build -o list -a ./cmds/gitscore/
