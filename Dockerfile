@@ -1,5 +1,6 @@
-FROM alpine:3.5
+FROM scratch
 MAINTAINER Ömür Özkir <oemuer.oezkir@gmail.com>
-ADD gitscore gitscore
-ADD gitscore-dashboard gitscore-dashboard
-ENTRYPOINT gitscore-dashboard
+ADD ca-certificates.crt /etc/ssl/certs/
+ADD list /
+ADD dashboard /
+ENV PATH="/:${PATH}"
