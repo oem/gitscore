@@ -102,5 +102,10 @@ func extractNext(link string) (string, error) {
 	if len(nextLink) <= 0 {
 		return "", nil
 	}
-	return string(nextLink[1]), nil
+	noise, err := regexp.Compile(".+?rel=\"prev\", <")
+	if err != nil {
+		return "", nil
+	}
+	final := noise.ReplaceAll(nextLink[1], []byte{})
+	return string(final), nil
 }
